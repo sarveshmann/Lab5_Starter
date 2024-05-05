@@ -3,6 +3,7 @@
 window.addEventListener('DOMContentLoaded', init);
 
 function init() {
+    const synth = window.speechSynthesis;
     // get the voice select element
     const voiceSelect = document.getElementById('voice-select');
     // get the text to speak element
@@ -11,25 +12,31 @@ function init() {
     const talkButton = document.querySelector('button');
     // get the face image
     const faceImage = document.querySelector('img');
+     
+
     let voices = [];
-
-    // load available voices
+    
     function populateVoiceList() {
-        voices = speechSynthesis.getVoices();
-
-        // get all the voices from the speechSynthesis
-        voices.forEach(voice => {
-            const option = document.createElement('option');
-            option.textContent = voice.name + ' (' + voice.lang + ')';
-            option.setAttribute('data-lang', voice.lang);
-            option.setAttribute('data-name', voice.name);
+        voices = synth.getVoices();
+        
+        for (let i = 0; i < voices.length; i++) {
+            const option = document.createElement("option");
+            option.textContent = `${voices[i].name} (${voices[i].lang})`;
+            
+            if (voices[i].default) {
+                option.textContent += " — DEFAULT";
+            }
+            
+            option.setAttribute("data-lang", voices[i].lang);
+            option.setAttribute("data-name", voices[i].name);
             voiceSelect.appendChild(option);
-        });
-        voiceSelect.removeAttribute('disabled');
+        }
     }
-
-    // load the voice list
-    speechSynthesis.onvoiceschanged = populateVoiceList;
+    
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
 
     // handle the speak functionality
     talkButton.addEventListener('click', () => {
